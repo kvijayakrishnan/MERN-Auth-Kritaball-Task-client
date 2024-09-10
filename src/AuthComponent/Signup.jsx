@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { Container,Form, Button } from 'react-bootstrap';
 import '../AuthStyle/Signup.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios'
 import env from 'react-dotenv';
 
@@ -15,70 +15,73 @@ function Signup() {
         address:'',
         phoneNumber:'',
         email:'',
-        password:'',
+        password:''
     })
-    const navigate = useNavigate
+    
+    
+    const navigate = useNavigate()
 
-    const handleChange = (e) =>{
-        const {name, value} = e.target;
-        setFormData({...formData, [name]:value})
-    }
+    
+    const {userName, fatherName, motherName, address, phoneNumber, email, password} = formData;
 
-    const handleSubmit = async(e) =>{
+    const onChange = e=> setFormData({...formData, [e.target.name]:e.target.value})
+
+    const onSubmit = async e=>{
         e.preventDefault();
+        const newUser = {userName, fatherName, motherName, address, phoneNumber, email, password};
         try {
-            const response = await axios.post(`${env.API_URL}/api/register`, formData)
-            console.log(response)
-            if(response.data.msg === "User register successfully"){
-                alert("Registration is complete please Login")
-            }else if(response.data.msg === "User already exists, Please Login"){
-                alert("Already have an account please login")
-            }else{
-                localStorage.setItem('userInfo', JSON.stringify(response.data))
-                navigate('/login')
-            }
+            const res = await axios.post('https://kvijayakrishnan-mern-auth-kritaball-task.onrender.com/api/register', newUser);
+            console.log(res.data)
+            if(res.data.msg === "Internal server error"){
+                            alert("Server busy Please try again after some time")
+                        }else if(res.data.msg === "User already exists, Please Login"){
+                            alert("Already have an account please login")
             
+                        }else{
+                            localStorage.setItem('userInfo', JSON.stringify(res.data))
+                            navigate('/login')
+                        }
+
         } catch (error) {
-            console.log('Error during registration',error)
+            console.log(error.res.data)
         }
     }
-
 
 
   return (
     <Container>
         <h1>Register Form</h1>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={e=> onSubmit(e)}>
             <Form.Group>
                 <Form.Label>Name</Form.Label>
-                <Form.Control type='text'  placeholder='Enter your name'  value={formData.name} onchange={handleChange} required />
+                <Form.Control type='text' placeholder='Enter your name' name='userName' value={userName} onChange={e=> onChange(e)}  required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Father Name</Form.Label>
-                <Form.Control type='text' placeholder='Enter your father name'  value={formData.fatherName} onchange={handleChange} required />
+                <Form.Control type='text' placeholder='Enter your father name' name='fatherName' value={fatherName} onChange={e=> onChange(e)} required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Mother Name</Form.Label>
-                <Form.Control type='text'  placeholder='Enter your mother name'  value={formData.motherName} onchange={handleChange} required />
+                <Form.Control type='text'  placeholder='Enter your mother name' name='motherName' value={motherName} onChange={e=> onChange(e)} required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Address</Form.Label>
-                <Form.Control type='text'  placeholder='Enter your address'  value={formData.address} onchange={handleChange} required />
+                <Form.Control type='text'  placeholder='Enter your address' name='address' value={address} onChange={e=> onChange(e)} required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Phone Number</Form.Label>
-                <Form.Control type='text'  placeholder='Enter your phone number'  value={formData.phoneNumber} onchange={handleChange} required />
+                <Form.Control type='text'  placeholder='Enter your phone number' name='phoneNumber' value={phoneNumber} onChange={e=> onChange(e)} required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Email</Form.Label>
-                <Form.Control type='text'  placeholder='Enter your email'  value={formData.email} onchange={handleChange} required />
+                <Form.Control type='text'  placeholder='Enter your email' name='email' value={email} onChange={e=> onChange(e)} required />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Password</Form.Label>
-                <Form.Control type='password'  placeholder='Enter your password'  value={formData.password} onchange={handleChange} required />
+                <Form.Control type='password'  placeholder='Enter your password' name='password' value={password} onChange={e=> onChange(e)}  required />
             </Form.Group>
-            <Button variant='primary' type='submit'>Register</Button>
-            <p>Already have a account Please <Link to='/login'>Login</Link> </p>
+            <Button variant='primary' type='submit' value='Register'>Register</Button>
+            <p>Already have a account Please </p><Link to='/login'><Button variant='primary' >Login</Button></Link>
         </Form>
         
     </Container>
